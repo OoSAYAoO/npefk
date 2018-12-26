@@ -1,0 +1,63 @@
+version: '3'
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  wwwroot:
+    driver: local
+    driver_opts:
+      type: none
+      device: /your/path/here
+      o: bind
+
+services:
+  php-fpm:
+    container_name: php-fpm
+    build:
+      context: ./php-fpm
+    volumes:
+      - wwwroot:/www
+    expose:
+      - "9000"
+    networks:
+      - backend
+  nginx:
+    container_name: nginx
+    ports:
+      - "80:80"
+    build:
+      context: ./nginx
+    volumes: 
+      - wwwroot:/www
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    expose: 
+      - "80"
+    networks: 
+      - backend
+  elasticsearch:
+    container_name: elasticsearch
+    build:
+      context: ./elasticsearch
+    expose: 
+      - "9100"
+      - "9200"
+    networks: 
+      - backend
+  fluentd:
+    container_name: fluentd
+    build:
+      context: ./fluentd
+    expose: 
+      - "24224"
+    networks: 
+      - backend
+  kibana:
+    container_name: kibana
+    build:
+      context: ./kibana
+    expose: 
+      - "5601"
+    networks: 
+      - backend
