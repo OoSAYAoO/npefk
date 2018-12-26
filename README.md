@@ -27,4 +27,4 @@ Fluentd listen on port 24224 and forward all logs request to elasticsearch, cust
 
 Run ```docker-compose restart nginx``` can reload nginx.conf eaisily, but the configure file of fluentd and kibana was already copied to docker image, run ```docker-compose build fluentd``` to rebuild the image.
 
-The first time start up the container, kibana would cost more than 1.5G memory to build the nodejs serverce, ensure less than 2G memory on your host machine, and you may wait about ten minutes.
+The first time start up the container, kibana would cost more than 1.5G memory to build the nodejs serverce, ensure more than 2G memory on your host machine, and you may wait about ten minutes.
