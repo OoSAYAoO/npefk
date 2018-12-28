@@ -10,13 +10,16 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositorie
     apk update && apk upgrade && apk add --no-cache tzdata curl tar xz libressl bash && \
     echo "${TIME_ZONE}" > /etc/timezone && ln -sf /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime && \
     apk add --no-cache autoconf dpkg-dev dpkg file g++ gcc libc-dev make pkgconf re2c argon2-dev \
-        curl-dev libedit-dev libsodium-dev libxml2-dev sqlite-dev
+        curl-dev libedit-dev libsodium-dev libxml2-dev sqlite-dev php7-dev
 
 RUN apk add --repository http://mirrors.ustc.edu.cn/alpine/edge/testing/ --no-cache php7 php7-apcu \
         php7-bcmath php7-ctype php7-curl php7-fpm php7-gd php7-iconv php7-intl \
         php7-json php7-ldap php7-sodium php7-mbstring php7-mcrypt php7-memcached php7-mongodb php7-msgpack \
         php7-mysqli php7-mysqlnd php7-opcache php7-openssl php7-pdo php7-pdo_mysql php7-posix php7-redis \
         php7-simplexml php7-soap php7-xml php7-xmlrpc php7-zip
+
+RUN cd /tmp && wget https://xdebug.org/files/xdebug-2.6.0RC2.tgz && tar -zxvf xdebug-2.6.0RC2.tgz && \
+    cd xdebug-2.6.0RC2 && phpize && ./configure --enable-xdebug && make && make install
 
 RUN sed -i "s|;*daemonize\s*=\s*yes|daemonize = no|g" /etc/php7/php-fpm.conf && \
     sed -i "s|;*listen\s*=\s*127.0.0.1:9000|listen = 9000|g" /etc/php7/php-fpm.d/www.conf && \
@@ -27,8 +30,16 @@ RUN sed -i "s|;*daemonize\s*=\s*yes|daemonize = no|g" /etc/php7/php-fpm.conf && 
     sed -i "s|;*max_file_uploads =.*|max_file_uploads = ${PHP_MAX_FILE_UPLOAD}|i" /etc/php7/php.ini && \
     sed -i "s|;*post_max_size =.*|post_max_size = ${PHP_MAX_POST}|i" /etc/php7/php.ini && \
     sed -i "s|;*cgi.fix_pathinfo=.*|cgi.fix_pathinfo= 0|i" /etc/php7/php.ini && \
+    echo "zend_extension=$(find /usr/lib/php7/modules/ -name xdebug.so)" >> /etc/php7/php.ini && \
+    echo "xdebug.remote_enable=on" >> /etc/php7/php.ini && \
+    echo "xdebug.remote_handler=dbgp" >> /etc/php7/php.ini && \
+    echo "xdebug.remote_mode=req" >> /etc/php7/php.ini && \
+    echo "xdebug.remote_autostart=on" >> /etc/php7/php.ini && \
+    echo "xdebug.remote_host=docker.for.mac.localhost" >> /etc/php7/php.ini && \
+    echo "xdebug.remote_port=9004" >> /etc/php7/php.ini && \
+    cd / && rm -rf /tmp/* && \
     mkdir /www
 
-EXPOSE 9000
+EXPOSE 9000 9004
 
 CMD /usr/sbin/php-fpm7 --nodaemonize

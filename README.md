@@ -18,6 +18,7 @@ Versions
 |Elasticsearch|6.2.3|
 |Fluentd|v0.12-onbuild|
 |Kibana|6.2.4|
+|XDebug|2.6.0RC2|
 
 Extra
 ----
