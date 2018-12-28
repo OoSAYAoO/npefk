@@ -21,6 +21,7 @@ services:
       - wwwroot:/www
     expose:
       - "9000"
+      - "9004"
     networks:
       - backend
   nginx:
